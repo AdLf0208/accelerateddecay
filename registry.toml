@@ -1,0 +1,49 @@
+id = "accelerateddecay"
+kind = "native-mod"
+name = "accelerateddecay"
+summary = "A Horizon port of accelerateddecay."
+description = """
+A port of [accelerateddecay](ErrorMikey/AcceleratedDecay) for Horizon.
+
+**Implemented so far**
+
+- The mod removes members of `#minecraft:leaves` that are "ready to be decayed"
+- (`distance == 7`, `!persistent`) one **real second** after a `#minecraft:logs`
+- break. The scan is a single flood fill over the full **26-neighbour** cube
+- that expands only through already-ready leaves; it has no radius, budget,
+- retry or cap. Each collected leaf is broken outright: loot with the breaking
+- player, one block-break level event per tree, `BLOCK_DESTROY`, and the
+- fluid's legacy block** — water for a `waterlogged` leaf, air for a dry one.
+- The port matches the predicate, the one-second (20-tick) delay, the
+
+**Not yet ported**
+
+- Removal is not a full break.** Upstream fires a cancelable
+- `BlockEvent.BREAK` per leaf (`:61-64`), drops the block's loot with the
+- breaking player (`Block.dropResources`, `:124-125`), plays the block-break
+- level event `2001` once per tree (`:119-121`), sets the fluid's legacy block
+- with flags `3` (`:128`) and fires `GameEvent.BLOCK_DESTROY` (`:129`). At pin
+- `c9d474d` Horizon has **no drop-resources API and no item-entity spawn API**
+- (`native_item_entities` is read-only), **no callable cancelable break event**
+- (the `destroy_block` hook is a listener, not an event bus), **no level-event
+
+Original copyright and licence notices are kept in this repository. Pinned to
+Horizon 1d63e0a and horizon-mixins 5a64af93. Help with the remaining slices is
+welcome.
+"""
+authors = ["AdLf0208"]
+owners = ["AdLf0208"]
+owner_ids = [107615167]
+license = "GPL-3.0-only"
+source = "https://github.com/AdLf0208/accelerateddecay"
+icon = "icons/accelerateddecay.png"
+categories = ["utility"]
+tags = ["port", "horizon"]
+
+[[versions]]
+version = "0.1.0"
+published = "2026-11-10"
+game = "26.3"
+file = "accelerateddecay.hnmod"
+sha256 = "f45203056a580572d1cabddb0e17d91d4027d80d361f5143f2fa768a0fb8d4f0"
+changelog = "First release"

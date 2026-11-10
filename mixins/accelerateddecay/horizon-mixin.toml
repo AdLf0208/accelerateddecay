@@ -1,0 +1,65 @@
+[mod]
+id = "accelerateddecay"
+version = "0.1.0"
+priority = 100
+
+[compatibility]
+horizon_revision = "1d63e0a5a37a7a708eb0b32b49bf0dfeb28ed8a9"
+
+# The pure logic engine (standalone crate lib at Cargo.toml's `[lib] path`,
+# and injected as `crate::game::accelerateddecay`).
+[[module]]
+id = "runtime"
+file = "crates/horizon-client/src/game.rs"
+name = "accelerateddecay"
+source = "runtime.rs"
+
+# The game-side glue: the shared static, the Reader impl over Game, and the
+# three entry functions the helpers call.
+[[module]]
+id = "state"
+file = "crates/horizon-client/src/game.rs"
+name = "accelerateddecay_state"
+source = "support.rs"
+
+# A player breaks a block (ServerPlayerGameMode.destroyBlock): on a member of
+# `#minecraft:logs`, open a felled-tree merge. Never cancels the break.
+[[injection]]
+id = "log-removed"
+hook = "destroy_block"
+hook_version = 1
+kind = "HEAD"
+helper = "destroy.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "pos", ty = "[i32; 3]", value = "pos" },
+  { name = "state", ty = "BlockStateId", value = "state" },
+]
+
+# Start of each authoritative server tick: advance the engine (reads happen
+# inside the hook's read scope, by dimension, through native_server_block).
+[[injection]]
+id = "server-tick"
+hook = "server_tick"
+hook_version = 1
+kind = "HEAD"
+helper = "tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "context", ty = "&NativeLifecycleContext", value = "context" },
+  { name = "phase", ty = "ServerTickPhase", value = "phase" },
+]
+
+# After each level's pass, with that level swapped in: execute the removals
+# the engine queued for this dimension (`native_set_block` only accepts the
+# level currently in place).
+[[injection]]
+id = "level-tick"
+hook = "level_tick_post"
+hook_version = 1
+kind = "HEAD"
+helper = "level_tick.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "dimension", ty = "&str", value = "dimension" },
+]
