@@ -1,0 +1,18 @@
+[package]
+name = "horizon-accelerateddecay"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "LGPL-3.0-only"
+description = "Accelerated Decay for Horizon: ready-to-decay leaves of a felled tree are removed as soon as possible"
+# Ported from: Accelerated Decay 21.0.0 (nanite/AcceleratedDecay), Minecraft Java 1.21.1 NeoForge.
+# Licence: repository LICENSE.md is GPL-3.0 (Modrinth metadata says LGPL-3.0-only, recorded per
+# tag in the port notes). Local-only port, never published without the maintainer's approval.
+
+[lib]
+# This exact source is also injected as a same-crate module by horizon-mixins.
+path = "mixins/accelerateddecay/runtime.rs"
+
+[workspace]
+members = ["tools/audit"]
+resolver = "2"
